@@ -19,7 +19,8 @@
       "@spartan-ng/helm/button": ["./libs/ui/button/src/index.ts"],
       "@spartan-ng/helm/checkbox": ["./libs/ui/checkbox/src/index.ts"],
       "@spartan-ng/helm/field": ["./libs/ui/field/src/index.ts"],
-      "@spartan-ng/helm/separator": ["./libs/ui/separator/src/index.ts"]
+      "@spartan-ng/helm/separator": ["./libs/ui/separator/src/index.ts"],
+      "@spartan-ng/helm/navigation-menu": ["./libs/ui/navigation-menu/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

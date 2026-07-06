@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideEye, lucideEyeOff } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -30,7 +31,10 @@ export class Login {
   protected readonly showPassword = signal(false);
   protected readonly rememberMe = signal(false);
 
+  private readonly router = inject(Router);
+
   protected onSubmit(): void {
     // TODO: wire authentication
+    this.router.navigate(['/dashboard']);
   }
 }

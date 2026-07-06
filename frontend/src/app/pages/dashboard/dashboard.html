@@ -1,0 +1,146 @@
+<div class="flex flex-col gap-6">
+  <!-- Stat cards -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    @for (stat of stats; track stat.label) {
+      <div
+        hlmCard
+        class="flex items-center gap-4 rounded-2xl p-5 transition-shadow hover:shadow-md"
+      >
+        <div
+          class="flex size-14 shrink-0 items-center justify-center rounded-2xl"
+          [class]="{
+            'bg-primary/10 text-primary': stat.tone === 'primary',
+            'bg-emerald-500/10 text-emerald-600': stat.tone === 'emerald',
+            'bg-amber-500/10 text-amber-600': stat.tone === 'amber',
+            'bg-rose-500/10 text-rose-600': stat.tone === 'rose',
+          }"
+        >
+          <ng-icon [name]="stat.icon" class="text-2xl" />
+        </div>
+        <div class="flex min-w-0 flex-col">
+          <p class="text-foreground text-3xl font-bold tracking-tight tabular-nums">
+            {{ stat.value | number }}
+          </p>
+          <p class="text-muted-foreground text-sm font-medium">{{ stat.label }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <!-- Bar + line chart -->
+    <section hlmCard class="flex flex-col gap-4 rounded-2xl p-6 lg:col-span-2">
+      <div hlmCardHeader class="flex flex-col gap-1 p-0">
+        <h3 hlmCardTitle class="text-lg">Students RFID Chart</h3>
+        <p hlmCardDescription>RFID Monthly Report</p>
+      </div>
+
+      <div class="relative h-72 w-full">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="h-full w-full">
+          <!-- gridlines -->
+          @for (g of [0, 25, 50, 75, 100]; track g) {
+            <line
+              [attr.x1]="0"
+              [attr.x2]="100"
+              [attr.y1]="g"
+              [attr.y2]="g"
+              class="stroke-border"
+              stroke-width="0.25"
+            />
+          }
+
+          <!-- bars -->
+          @for (m of months(); track m.label; let i = $index) {
+            <rect
+              [attr.x]="(100 / months().length) * i + (100 / months().length) * 0.2"
+              [attr.width]="(100 / months().length) * 0.6"
+              [attr.y]="100 - barHeight(m.value)"
+              [attr.height]="barHeight(m.value)"
+              rx="1"
+              class="fill-primary/85"
+            />
+          }
+
+          <!-- line overlay -->
+          <polyline
+            [attr.points]="linePoints()"
+            fill="none"
+            class="stroke-amber-500"
+            stroke-width="0.8"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            vector-effect="non-scaling-stroke"
+          />
+        </svg>
+
+        <!-- line node dots (non-distorted) -->
+        <svg viewBox="0 0 100 100" class="pointer-events-none absolute inset-0 h-full w-full">
+          @for (m of months(); track m.label; let i = $index) {
+            <circle
+              [attr.cx]="(100 / months().length) * i + (100 / months().length) / 2"
+              [attr.cy]="linePointY(m.value)"
+              r="1.1"
+              class="fill-amber-500"
+              vector-effect="non-scaling-stroke"
+            />
+          }
+        </svg>
+      </div>
+
+      <!-- x-axis labels -->
+      <div class="flex">
+        @for (m of months(); track m.label) {
+          <span class="text-muted-foreground flex-1 text-center text-xs font-medium">
+            {{ m.label }}
+          </span>
+        }
+      </div>
+    </section>
+
+    <!-- Donut chart -->
+    <section hlmCard class="flex flex-col gap-4 rounded-2xl p-6">
+      <div hlmCardHeader class="flex flex-col gap-1 p-0">
+        <h3 hlmCardTitle class="text-lg">RFID Cards</h3>
+        <p hlmCardDescription>Enrollment distribution</p>
+      </div>
+
+      <div class="flex flex-1 flex-col items-center justify-center gap-6">
+        <div
+          class="relative grid size-48 place-items-center rounded-full"
+          [style.background]="
+            'conic-gradient(var(--primary) 0deg ' +
+            donutAngle() +
+            'deg, var(--color-amber-500) ' +
+            donutAngle() +
+            'deg 360deg)'
+          "
+        >
+          <div class="bg-card grid size-28 place-items-center rounded-full text-center">
+            <div class="flex flex-col">
+              <p class="text-foreground text-2xl font-bold tabular-nums">{{ rfidPercent() }}%</p>
+              <p class="text-muted-foreground text-xs">With RFID</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex w-full items-center justify-center gap-6">
+          <div class="flex items-center gap-2">
+            <span class="bg-primary size-3 rounded-sm"></span>
+            <span class="text-muted-foreground text-sm">With RFID</span>
+            <span class="text-foreground text-sm font-semibold tabular-nums">
+              {{ withRfid | number }}
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="size-3 rounded-sm bg-amber-500"></span>
+            <span class="text-muted-foreground text-sm">No RFID</span>
+            <span class="text-foreground text-sm font-semibold tabular-nums">
+              {{ noRfid | number }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
