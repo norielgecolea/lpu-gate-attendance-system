@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { AdminLayout } from './layouts/admin-layout/admin-layout';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { Students } from './pages/students/students';
 import { Placeholder } from './pages/placeholder/placeholder';
 
 export const routes: Routes = [
@@ -11,7 +12,7 @@ export const routes: Routes = [
     component: AdminLayout,
     children: [
       { path: 'dashboard', component: Dashboard },
-      { path: 'students', component: Placeholder, data: { title: 'Students' } },
+      { path: 'students', component: Students },
       { path: 'attendance', component: Placeholder, data: { title: 'Attendance' } },
       {
         path: 'deleted-students',

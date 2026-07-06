@@ -4,10 +4,10 @@
     @for (stat of stats; track stat.label) {
       <div
         hlmCard
-        class="flex items-center gap-4 rounded-2xl p-5 transition-shadow hover:shadow-md"
+        class="flex items-center gap-4 p-5 transition-shadow hover:shadow-md"
       >
         <div
-          class="flex size-14 shrink-0 items-center justify-center rounded-2xl"
+          class="flex size-14 shrink-0 items-center justify-center rounded-lg"
           [class]="{
             'bg-primary/10 text-primary': stat.tone === 'primary',
             'bg-emerald-500/10 text-emerald-600': stat.tone === 'emerald',
@@ -30,7 +30,7 @@
   <!-- Charts -->
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <!-- Bar + line chart -->
-    <section hlmCard class="flex flex-col gap-4 rounded-2xl p-6 lg:col-span-2">
+    <section hlmCard class="flex flex-col gap-4 p-6 lg:col-span-2">
       <div hlmCardHeader class="flex flex-col gap-1 p-0">
         <h3 hlmCardTitle class="text-lg">Students RFID Chart</h3>
         <p hlmCardDescription>RFID Monthly Report</p>
@@ -99,7 +99,7 @@
     </section>
 
     <!-- Donut chart -->
-    <section hlmCard class="flex flex-col gap-4 rounded-2xl p-6">
+    <section hlmCard class="flex flex-col gap-4 p-6">
       <div hlmCardHeader class="flex flex-col gap-1 p-0">
         <h3 hlmCardTitle class="text-lg">RFID Cards</h3>
         <p hlmCardDescription>Enrollment distribution</p>

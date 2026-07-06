@@ -10,10 +10,10 @@ import { lucideConstruction } from '@ng-icons/lucide';
   template: `
     <div class="mx-auto max-w-7xl">
       <div
-        class="border-border bg-card flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed p-10 text-center"
+        class="border-border bg-card flex min-h-[60vh] flex-col items-center justify-center gap-4 rounded-lg border border-dashed p-10 text-center"
       >
         <div
-          class="bg-primary/10 text-primary flex size-16 items-center justify-center rounded-2xl"
+          class="bg-primary/10 text-primary flex size-16 items-center justify-center rounded-lg"
         >
           <ng-icon name="lucideConstruction" class="text-3xl" />
         </div>
