@@ -121,7 +121,14 @@
                   }
                   @case ('actions') {
                     <div class="flex items-center justify-end gap-1.5">
-                      <button hlmBtn size="icon" variant="ghost" class="hover:bg-background" aria-label="Attendance history">
+                      <button
+                        hlmBtn
+                        size="icon"
+                        variant="ghost"
+                        class="hover:bg-background"
+                        [routerLink]="['/students', row.original.id, 'logs']"
+                        aria-label="Attendance history"
+                      >
                         <ng-icon name="lucideClock" class="text-base" />
                       </button>
                       <button hlmBtn size="icon" variant="ghost" class="hover:bg-background" aria-label="Edit student">
@@ -181,4 +188,7 @@
       </button>
     </div>
   </div>
+
+  <!-- Route-driven attendance logs dialog -->
+  <router-outlet />
 </div>

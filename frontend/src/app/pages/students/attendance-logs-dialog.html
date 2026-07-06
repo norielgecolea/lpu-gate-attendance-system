@@ -1,0 +1,97 @@
+<div class="flex flex-col gap-4">
+  <div hlmDialogHeader>
+    <h2 hlmDialogTitle class="text-lg">Attendance Logs</h2>
+  </div>
+
+  @if (student) {
+    <!-- Student summary -->
+    <div class="bg-card flex items-center gap-3 rounded-lg border p-3">
+      <hlm-avatar>
+        @if (student.photo) {
+          <img [src]="student.photo" [alt]="student.name" hlmAvatarImage />
+        }
+        <span hlmAvatarFallback>{{ initials(student.name) }}</span>
+      </hlm-avatar>
+      <div class="leading-tight">
+        <p class="text-foreground font-medium">{{ student.name }}</p>
+        <p class="text-muted-foreground text-xs">{{ student.studentNo }}</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-end gap-2">
+      <div class="flex flex-col gap-1">
+        <label hlmLabel for="startDate">Start Date</label>
+        <input
+          hlmInput
+          id="startDate"
+          type="date"
+          [ngModel]="startDate()"
+          (ngModelChange)="startDate.set($event)"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label hlmLabel for="endDate">End Date</label>
+        <input
+          hlmInput
+          id="endDate"
+          type="date"
+          [ngModel]="endDate()"
+          (ngModelChange)="endDate.set($event)"
+        />
+      </div>
+      <button hlmBtn variant="secondary" class="gap-1.5" (click)="clear()">
+        <ng-icon name="lucideEraser" class="text-base" />
+        Clear
+      </button>
+
+      <button hlmBtn class="ml-auto gap-1.5">
+        <ng-icon name="lucideFileUp" class="text-base" />
+        Export
+      </button>
+    </div>
+
+    <!-- Logs table -->
+    <div hlmTableContainer class="bg-card max-h-96 overflow-y-auto rounded-lg border">
+      <table hlmTable class="text-sm">
+        <thead hlmTHead class="sticky top-0">
+          <tr hlmTr class="bg-primary hover:bg-primary [&>th]:text-primary-foreground">
+            @for (col of [
+              { key: 'date', label: 'Date' },
+              { key: 'timeIn', label: 'Time in' }
+            ]; track col.key) {
+              <th hlmTh>
+                <button
+                  type="button"
+                  class="text-primary-foreground flex items-center gap-1.5 font-medium hover:opacity-80"
+                  (click)="sortBy($any(col.key))"
+                >
+                  {{ col.label }}
+                  <ng-icon [name]="sortIcon($any(col.key))" class="text-primary-foreground/70 text-sm" />
+                </button>
+              </th>
+            }
+            <th hlmTh>Time out</th>
+          </tr>
+        </thead>
+        <tbody hlmTBody>
+          @for (log of rows(); track $index) {
+            <tr hlmTr>
+              <td hlmTd class="tabular-nums">{{ log.date }}</td>
+              <td hlmTd class="tabular-nums">{{ log.timeIn }}</td>
+              <td hlmTd class="tabular-nums">{{ log.timeOut ?? '' }}</td>
+            </tr>
+          } @empty {
+            <tr hlmTr>
+              <td hlmTd colspan="3" class="text-muted-foreground py-8 text-center">
+                No attendance records.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="text-muted-foreground py-8 text-center">Student not found.</p>
+  }
+</div>

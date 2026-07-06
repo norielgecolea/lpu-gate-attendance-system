@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideChevronDown,
@@ -35,22 +36,14 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
 } from '@tanstack/angular-table';
-
-interface Student {
-  id: string;
-  name: string;
-  studentNo: string;
-  photo?: string;
-  rfid: string | null;
-  department: string;
-  course: string;
-  school: string;
-}
+import { type Student, StudentsStore } from './students.store';
 
 @Component({
   selector: 'app-students',
   imports: [
     FormsModule,
+    RouterLink,
+    RouterOutlet,
     NgIcon,
     HlmButton,
     HlmInput,
@@ -81,16 +74,8 @@ interface Student {
   templateUrl: './students.html',
 })
 export class Students {
-  protected readonly data = signal<Student[]>([
-    { id: '1', name: 'AALA, ALIYAH SOPHIA ANGELES', studentNo: '2024-10899', rfid: '0000809359', department: 'CITHM', course: 'BSIHM-CLOCA', school: 'LPL' },
-    { id: '2', name: 'AALA, ANNE KATHERINE MANDAL', studentNo: '2023-10921', rfid: '0007191790', department: 'CITHM', course: 'BSICM', school: 'LPL' },
-    { id: '3', name: 'AALA, JIRO RAFBERT ANILLO', studentNo: '2020-10801', rfid: '0002263808', department: 'CAS', course: 'BSBIO-MICRO', school: 'LPL' },
-    { id: '4', name: 'ABAC, MA. LORREA NAVOA', studentNo: '2023-10824', rfid: null, department: 'CITHM', course: 'BSITM-AVSE', school: 'LPL' },
-    { id: '5', name: 'ABACA, KRISTINA KYLE BARLITA', studentNo: '2022-10503', rfid: '0000893232', department: 'CITHM', course: 'BSIHM-CLOHS', school: 'LPL' },
-    { id: '6', name: 'ABACAN, DESIREE MAE MANALO', studentNo: '2024-10994', rfid: '0007459677', department: 'CITHM', course: 'BSIHM-CLOCA', school: 'LPL' },
-    { id: '7', name: 'ABAD, JETHRO MARCUS DANAO', studentNo: '2025-10149', rfid: '0002865116', department: 'LPUISJH', course: 'HS-JUNIOR', school: 'LPL' },
-    { id: '8', name: 'ABADIER, CORBIN JAHNIZEL MAMONONG', studentNo: '2023-10485', rfid: '0002729616', department: 'CBA', course: 'BSA', school: 'LPL' },
-  ]);
+  private readonly store = inject(StudentsStore);
+  protected readonly data = this.store.students;
 
   protected readonly sorting = signal<SortingState>([]);
   protected readonly globalFilter = signal('');
