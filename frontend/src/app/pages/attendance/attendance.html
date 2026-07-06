@@ -1,6 +1,6 @@
 <div class="flex h-full flex-col gap-4">
   <!-- Toolbar -->
-  <div class="flex flex-wrap items-center gap-2">
+  <div class="flex flex-wrap items-end gap-2">
     <!-- Search -->
     <div class="relative min-w-0 flex-1">
       <ng-icon
@@ -11,37 +11,41 @@
         hlmInput
         class="bg-card w-full pl-9"
         type="search"
-        placeholder="Search students"
+        placeholder="Search"
         [ngModel]="globalFilter()"
         (ngModelChange)="globalFilter.set($event)"
       />
     </div>
 
-    <hlm-separator orientation="vertical" class="mx-1 h-6" />
+    <hlm-separator orientation="vertical" class="mx-1 h-6 self-center" />
 
-    <button hlmBtn class="gap-1.5">
-      <ng-icon name="lucidePlus" class="text-base" />
-      New
-    </button>
-    <button hlmBtn class="gap-1.5">
-      <ng-icon name="lucideRefreshCw" class="text-base" />
-      Sync
-    </button>
-    <button hlmBtn variant="destructive" class="gap-1.5">
-      <ng-icon name="lucideTrash2" class="text-base" />
-      Delete
+    <div class="flex flex-col gap-1">
+      <label hlmLabel for="startDate">Start Date</label>
+      <input
+        hlmInput
+        id="startDate"
+        type="date"
+        [ngModel]="startDate()"
+        (ngModelChange)="startDate.set($event)"
+      />
+    </div>
+    <div class="flex flex-col gap-1">
+      <label hlmLabel for="endDate">End Date</label>
+      <input
+        hlmInput
+        id="endDate"
+        type="date"
+        [ngModel]="endDate()"
+        (ngModelChange)="endDate.set($event)"
+      />
+    </div>
+    <button hlmBtn variant="outline" class="gap-1.5" (click)="clear()">
+      <ng-icon name="lucideEraser" class="text-base" />
+      Clear
     </button>
 
-    <hlm-separator orientation="vertical" class="mx-1 h-6" />
+    <hlm-separator orientation="vertical" class="mx-1 h-6 self-center" />
 
-    <button hlmBtn class="gap-1.5">
-      <ng-icon name="lucideUpload" class="text-base" />
-      Upload
-    </button>
-    <button hlmBtn class="gap-1.5">
-      <ng-icon name="lucideFileDown" class="text-base" />
-      Import
-    </button>
     <button hlmBtn class="gap-1.5">
       <ng-icon name="lucideFileUp" class="text-base" />
       Export
@@ -55,16 +59,13 @@
         @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
           <tr hlmTr class="bg-primary hover:bg-primary [&>th]:text-primary-foreground">
             @for (header of headerGroup.headers; track header.id) {
-              <th hlmTh [class.w-10]="header.column.id === 'select'" [class.text-end]="header.column.id === 'actions'">
+              <th hlmTh [class.w-10]="header.column.id === 'select'">
                 @switch (header.column.id) {
                   @case ('select') {
                     <hlm-checkbox
                       [checked]="table.getIsAllPageRowsSelected()"
                       (checkedChange)="table.toggleAllPageRowsSelected($event)"
                     />
-                  }
-                  @case ('actions') {
-                    <span>{{ header.column.columnDef.header }}</span>
                   }
                   @default {
                     <button
@@ -90,7 +91,7 @@
         @for (row of table.getRowModel().rows; track row.id) {
           <tr hlmTr [attr.data-state]="row.getIsSelected() ? 'selected' : null">
             @for (cell of row.getVisibleCells(); track cell.id) {
-              <td hlmTd [class.text-end]="cell.column.id === 'actions'">
+              <td hlmTd>
                 @switch (cell.column.id) {
                   @case ('select') {
                     <hlm-checkbox
@@ -112,32 +113,14 @@
                       </div>
                     </div>
                   }
-                  @case ('rfid') {
-                    @if (row.original.rfid) {
-                      <span class="tabular-nums">{{ row.original.rfid }}</span>
-                    } @else {
-                      <span hlmBadge variant="destructive">Not Available</span>
-                    }
+                  @case ('date') {
+                    <span class="tabular-nums">{{ row.original.date }}</span>
                   }
-                  @case ('actions') {
-                    <div class="flex items-center justify-end gap-1.5">
-                      <button
-                        hlmBtn
-                        size="icon"
-                        variant="ghost"
-                        class="hover:bg-background"
-                        [routerLink]="['/students', row.original.id, 'logs']"
-                        aria-label="Attendance history"
-                      >
-                        <ng-icon name="lucideClock" class="text-base" />
-                      </button>
-                      <button hlmBtn size="icon" variant="ghost" class="hover:bg-background" aria-label="Edit student">
-                        <ng-icon name="lucidePencil" class="text-base" />
-                      </button>
-                      <button hlmBtn size="icon" variant="ghost" class="text-destructive hover:text-destructive hover:bg-background" aria-label="Delete student">
-                        <ng-icon name="lucideTrash2" class="text-base" />
-                      </button>
-                    </div>
+                  @case ('timeIn') {
+                    <span class="tabular-nums">{{ row.original.timeIn }}</span>
+                  }
+                  @case ('timeOut') {
+                    <span class="tabular-nums">{{ row.original.timeOut ?? '' }}</span>
                   }
                   @default {
                     {{ cell.getValue() }}
@@ -149,7 +132,7 @@
         } @empty {
           <tr hlmTr>
             <td hlmTd [attr.colspan]="table.getAllColumns().length" class="text-muted-foreground py-10 text-center">
-              No students found.
+              No attendance records found.
             </td>
           </tr>
         }
@@ -170,7 +153,7 @@
       </span>
       <button
         hlmBtn
-               class="gap-1"
+        class="gap-1"
         [disabled]="!table.getCanPreviousPage()"
         (click)="table.previousPage()"
       >
@@ -179,7 +162,7 @@
       </button>
       <button
         hlmBtn
-               class="gap-1"
+        class="gap-1"
         [disabled]="!table.getCanNextPage()"
         (click)="table.nextPage()"
       >
@@ -188,7 +171,4 @@
       </button>
     </div>
   </div>
-
-  <!-- Route-driven attendance logs dialog -->
-  <router-outlet />
 </div>

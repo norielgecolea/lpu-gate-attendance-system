@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideChevronDown,
@@ -8,21 +7,15 @@ import {
   lucideChevronRight,
   lucideChevronsUpDown,
   lucideChevronUp,
-  lucideClock,
-  lucideFileDown,
+  lucideEraser,
   lucideFileUp,
-  lucidePencil,
-  lucidePlus,
-  lucideRefreshCw,
   lucideSearch,
-  lucideTrash2,
-  lucideUpload,
 } from '@ng-icons/lucide';
 import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
-import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import {
@@ -36,34 +29,26 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
 } from '@tanstack/angular-table';
-import { type Student, StudentsStore } from './students.store';
+import { type AttendanceRecord, AttendanceStore } from './attendance.store';
 
 @Component({
-  selector: 'app-students',
+  selector: 'app-attendance',
   imports: [
     FormsModule,
-    RouterLink,
-    RouterOutlet,
     NgIcon,
     HlmButton,
     HlmInput,
+    HlmLabel,
     HlmCheckbox,
-    HlmBadge,
     HlmSeparator,
     HlmTableImports,
     HlmAvatarImports,
   ],
   viewProviders: [
     provideIcons({
-      lucidePlus,
-      lucideRefreshCw,
-      lucideTrash2,
-      lucideUpload,
-      lucideFileDown,
+      lucideEraser,
       lucideFileUp,
       lucideSearch,
-      lucideClock,
-      lucidePencil,
       lucideChevronsUpDown,
       lucideChevronUp,
       lucideChevronDown,
@@ -71,30 +56,40 @@ import { type Student, StudentsStore } from './students.store';
       lucideChevronRight,
     }),
   ],
-  templateUrl: './students.html',
+  templateUrl: './attendance.html',
   host: { class: 'block h-full' },
 })
-export class Students {
-  private readonly store = inject(StudentsStore);
-  protected readonly data = this.store.students;
+export class Attendance {
+  private readonly store = inject(AttendanceStore);
 
+  protected readonly startDate = signal('');
+  protected readonly endDate = signal('');
   protected readonly sorting = signal<SortingState>([]);
   protected readonly globalFilter = signal('');
   protected readonly rowSelection = signal<RowSelectionState>({});
   protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 8 });
 
-  private readonly columns: ColumnDef<Student>[] = [
+  private readonly dateFiltered = computed(() => {
+    const start = this.startDate();
+    const end = this.endDate();
+    return this.store
+      .records()
+      .filter((r) => (!start || r.date >= start) && (!end || r.date <= end));
+  });
+
+  private readonly columns: ColumnDef<AttendanceRecord>[] = [
     { id: 'select', enableSorting: false },
-    { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'rfid', header: 'RFID #' },
+    { accessorKey: 'name', header: 'Names' },
     { accessorKey: 'department', header: 'Department' },
     { accessorKey: 'course', header: 'Course' },
     { accessorKey: 'school', header: 'School' },
-    { id: 'actions', header: 'Action', enableSorting: false },
+    { accessorKey: 'date', header: 'Date' },
+    { accessorKey: 'timeIn', header: 'Time in' },
+    { accessorKey: 'timeOut', header: 'Time out' },
   ];
 
-  protected readonly table = createAngularTable<Student>(() => ({
-    data: this.data(),
+  protected readonly table = createAngularTable<AttendanceRecord>(() => ({
+    data: this.dateFiltered(),
     columns: this.columns,
     state: {
       sorting: this.sorting(),
@@ -127,5 +122,10 @@ export class Students {
   protected initials(name: string): string {
     const parts = name.replace(',', '').trim().split(/\s+/);
     return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase();
+  }
+
+  protected clear(): void {
+    this.startDate.set('');
+    this.endDate.set('');
   }
 }
