@@ -1,11 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideChevronDown,
-  lucideChevronLeft,
-  lucideChevronRight,
   lucideChevronsUpDown,
   lucideChevronUp,
   lucideClock,
@@ -27,15 +25,14 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import {
   type ColumnDef,
-  type PaginationState,
   type RowSelectionState,
   type SortingState,
   createAngularTable,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
 } from '@tanstack/angular-table';
+import { infiniteScroll } from '../../shared/infinite-scroll';
 import { type Student, StudentsStore } from './students.store';
 
 @Component({
@@ -67,12 +64,10 @@ import { type Student, StudentsStore } from './students.store';
       lucideChevronsUpDown,
       lucideChevronUp,
       lucideChevronDown,
-      lucideChevronLeft,
-      lucideChevronRight,
     }),
   ],
   templateUrl: './students.html',
-  host: { class: 'block h-full' },
+  host: { class: 'flex h-full flex-col' },
 })
 export class Students {
   private readonly store = inject(StudentsStore);
@@ -81,7 +76,7 @@ export class Students {
   protected readonly sorting = signal<SortingState>([]);
   protected readonly globalFilter = signal('');
   protected readonly rowSelection = signal<RowSelectionState>({});
-  protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 8 });
+  protected readonly scroll = infiniteScroll();
 
   private readonly columns: ColumnDef<Student>[] = [
     { id: 'select', enableSorting: false },
@@ -100,7 +95,6 @@ export class Students {
       sorting: this.sorting(),
       globalFilter: this.globalFilter(),
       rowSelection: this.rowSelection(),
-      pagination: this.pagination(),
     },
     enableRowSelection: true,
     globalFilterFn: 'includesString',
@@ -110,13 +104,18 @@ export class Students {
       this.globalFilter.set(typeof updater === 'function' ? updater(this.globalFilter()) : updater),
     onRowSelectionChange: (updater) =>
       this.rowSelection.set(typeof updater === 'function' ? updater(this.rowSelection()) : updater),
-    onPaginationChange: (updater) =>
-      this.pagination.set(typeof updater === 'function' ? updater(this.pagination()) : updater),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   }));
+
+  constructor() {
+    // Reset the reveal window when the filtered result set changes.
+    effect(() => {
+      this.globalFilter();
+      this.scroll.reset();
+    });
+  }
 
   protected sortIcon(state: false | 'asc' | 'desc'): string {
     if (state === 'asc') return 'lucideChevronUp';

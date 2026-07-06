@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -15,6 +15,7 @@ import { HlmDialogHeader, HlmDialogTitle } from '@spartan-ng/helm/dialog';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmTableImports } from '@spartan-ng/helm/table';
+import { infiniteScroll } from '../../shared/infinite-scroll';
 import { StudentsStore } from './students.store';
 
 type LogSortKey = 'date' | 'timeIn';
@@ -54,6 +55,16 @@ export class AttendanceLogsDialog {
   protected readonly endDate = signal('');
   protected readonly sortKey = signal<LogSortKey>('date');
   protected readonly sortAsc = signal(false);
+  protected readonly scroll = infiniteScroll();
+
+  constructor() {
+    // Reset the reveal window when the filtered result set changes.
+    effect(() => {
+      this.startDate();
+      this.endDate();
+      this.scroll.reset();
+    });
+  }
 
   protected readonly rows = computed(() => {
     const start = this.startDate();

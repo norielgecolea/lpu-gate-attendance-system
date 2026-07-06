@@ -52,7 +52,11 @@
     </div>
 
     <!-- Logs table -->
-    <div hlmTableContainer class="bg-card max-h-96 overflow-y-auto rounded-lg border">
+    <div
+      hlmTableContainer
+      class="bg-card max-h-96 overflow-y-auto rounded-lg border"
+      (scroll)="scroll.onScroll($event, rows().length)"
+    >
       <table hlmTable class="text-sm">
         <thead hlmTHead class="sticky top-0">
           <tr hlmTr class="bg-primary hover:bg-primary [&>th]:text-primary-foreground">
@@ -75,7 +79,7 @@
           </tr>
         </thead>
         <tbody hlmTBody>
-          @for (log of rows(); track $index) {
+          @for (log of scroll.take(rows()); track $index) {
             <tr hlmTr>
               <td hlmTd class="tabular-nums">{{ log.date }}</td>
               <td hlmTd class="tabular-nums">{{ log.timeIn }}</td>

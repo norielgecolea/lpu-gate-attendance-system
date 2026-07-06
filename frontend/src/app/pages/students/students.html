@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-4">
+<div class="flex min-h-0 flex-1 flex-col gap-4">
   <!-- Toolbar -->
   <div class="flex flex-wrap items-center gap-2">
     <!-- Search -->
@@ -49,7 +49,11 @@
   </div>
 
   <!-- Table -->
-  <div hlmTableContainer class="bg-card min-h-0 flex-1 overflow-y-auto rounded-lg border shadow-sm">
+  <div
+    hlmTableContainer
+    class="bg-card min-h-0 flex-1 overflow-y-auto rounded-lg border shadow-sm"
+    (scroll)="scroll.onScroll($event, table.getRowModel().rows.length)"
+  >
     <table hlmTable class="text-sm">
       <thead hlmTHead class="sticky top-0 z-10">
         @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
@@ -87,7 +91,7 @@
       </thead>
 
       <tbody hlmTBody>
-        @for (row of table.getRowModel().rows; track row.id) {
+        @for (row of scroll.take(table.getRowModel().rows); track row.id) {
           <tr hlmTr [attr.data-state]="row.getIsSelected() ? 'selected' : null">
             @for (cell of row.getVisibleCells(); track cell.id) {
               <td hlmTd [class.text-end]="cell.column.id === 'actions'">
@@ -156,39 +160,7 @@
       </tbody>
     </table>
   </div>
-
-  <!-- Footer: selection + pagination -->
-  <div class="flex flex-wrap items-center justify-between gap-3">
-    <p class="text-muted-foreground text-sm">
-      {{ table.getFilteredSelectedRowModel().rows.length }} of
-      {{ table.getFilteredRowModel().rows.length }} row(s) selected
-    </p>
-
-    <div class="flex items-center gap-3">
-      <span class="text-muted-foreground text-sm">
-        Page {{ table.getState().pagination.pageIndex + 1 }} of {{ table.getPageCount() }}
-      </span>
-      <button
-        hlmBtn
-               class="gap-1"
-        [disabled]="!table.getCanPreviousPage()"
-        (click)="table.previousPage()"
-      >
-        <ng-icon name="lucideChevronLeft" class="text-base" />
-        Prev
-      </button>
-      <button
-        hlmBtn
-               class="gap-1"
-        [disabled]="!table.getCanNextPage()"
-        (click)="table.nextPage()"
-      >
-        Next
-        <ng-icon name="lucideChevronRight" class="text-base" />
-      </button>
-    </div>
-  </div>
-
-  <!-- Route-driven attendance logs dialog -->
-  <router-outlet />
 </div>
+
+<!-- Route-driven attendance logs dialog -->
+<router-outlet />

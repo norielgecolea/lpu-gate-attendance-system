@@ -1,10 +1,8 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideChevronDown,
-  lucideChevronLeft,
-  lucideChevronRight,
   lucideChevronsUpDown,
   lucideChevronUp,
   lucideEraser,
@@ -20,15 +18,14 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import {
   type ColumnDef,
-  type PaginationState,
   type RowSelectionState,
   type SortingState,
   createAngularTable,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
 } from '@tanstack/angular-table';
+import { infiniteScroll } from '../../shared/infinite-scroll';
 import { type AttendanceRecord, AttendanceStore } from './attendance.store';
 
 @Component({
@@ -52,8 +49,6 @@ import { type AttendanceRecord, AttendanceStore } from './attendance.store';
       lucideChevronsUpDown,
       lucideChevronUp,
       lucideChevronDown,
-      lucideChevronLeft,
-      lucideChevronRight,
     }),
   ],
   templateUrl: './attendance.html',
@@ -67,7 +62,7 @@ export class Attendance {
   protected readonly sorting = signal<SortingState>([]);
   protected readonly globalFilter = signal('');
   protected readonly rowSelection = signal<RowSelectionState>({});
-  protected readonly pagination = signal<PaginationState>({ pageIndex: 0, pageSize: 8 });
+  protected readonly scroll = infiniteScroll();
 
   private readonly dateFiltered = computed(() => {
     const start = this.startDate();
@@ -95,7 +90,6 @@ export class Attendance {
       sorting: this.sorting(),
       globalFilter: this.globalFilter(),
       rowSelection: this.rowSelection(),
-      pagination: this.pagination(),
     },
     enableRowSelection: true,
     globalFilterFn: 'includesString',
@@ -105,13 +99,20 @@ export class Attendance {
       this.globalFilter.set(typeof updater === 'function' ? updater(this.globalFilter()) : updater),
     onRowSelectionChange: (updater) =>
       this.rowSelection.set(typeof updater === 'function' ? updater(this.rowSelection()) : updater),
-    onPaginationChange: (updater) =>
-      this.pagination.set(typeof updater === 'function' ? updater(this.pagination()) : updater),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   }));
+
+  constructor() {
+    // Reset the reveal window when the filtered result set changes.
+    effect(() => {
+      this.globalFilter();
+      this.startDate();
+      this.endDate();
+      this.scroll.reset();
+    });
+  }
 
   protected sortIcon(state: false | 'asc' | 'desc'): string {
     if (state === 'asc') return 'lucideChevronUp';
